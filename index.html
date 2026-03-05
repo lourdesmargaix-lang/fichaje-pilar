@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  
+  <!-- iOS App Configuration -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fichaje Pilar">
+  <meta name="format-detection" content="telephone=no">
+  
+  <!-- Icono para iOS -->
+  <link rel="apple-touch-icon" href="./icono-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="./icono-152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icono-180.png">
+  
+  <title>Fichaje - HornoPasteleriaElPilar</title>
+  
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #f5f5f5;
+      -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
+    }
+    
+    #app {
+      min-height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    h1 {
+      font-size: 22px;
+      margin: 0 0 15px;
+      text-align: center;
+      color: #333;
+    }
+    
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    
+    .banner {
+      display: none;
+      margin: 0 auto 15px;
+      max-width: 420px;
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+      padding: 12px 15px;
+      border-radius: 12px;
+      font-size: 14px;
+      text-align: left;
+    }
+    
+    select, button {
+      width: 100%;
+      padding: 16px;
+      font-size: 17px;
+      margin-top: 12px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+    }
+    
+    select {
+      background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E") no-repeat right 15px center;
+      padding-right: 40px;
+    }
+    
+    button {
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    
+    button:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+    
+    .entrada { background: #28a745; color: white; }
+    .salida { background: #dc3545; color: white; }
+    .exportar { background: #007bff; color: white; }
+    .borrar { background: #6c757d; color: white; }
+    
+    .ok {
+      margin-top: 15px;
+      padding: 12px;
+      background: #d4edda;
+      border-radius: 10px;
+      color: #155724;
+      font-size: 14px;
+      text-align: center;
+    }
+    
+    .historial {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 14px;
+      max-height: 300px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      border-top: 2px solid #eee;
+      padding-top: 15px;
+    }
+    
+    .registro {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid #28a745;
+    }
+    
+    .registro.salida {
+      border-left-color: #dc3545;
+    }
+    
+    .hora {
+      color: #666;
+      font-size: 13px;
+    }
+    
+    /* Fix para iOS standalone mode */
+    @media (display-mode: standalone) {
+      body {
+        padding-top: 20px;
+      }
+      .header-safe {
+        padding-top: constant(safe-area-inset-top);
+        padding-top: env(safe-area-inset-top);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app">
+    <div class="banner" id="banner"></div>
+
+    <div class="box">
+      <h1>📌 Fichaje<br>Horno Pastelería El Pilar</h1>
+
+      <select id="trabajador">
+        <option value="">👤 Selecciona trabajador</option>
+        <option value="Jiulia">Jiulia</option>
+        <option value="Remus">Remus</option>
+        <option value="Lourdes">Lourdes</option>
+        <option value="Andreea">Andreea</option>
+        <option value="Sandra">Sandra</option>
+      </select>
+
+      <button class="entrada" id="btnEntrada">✅ ENTRADA</button>
+      <button class="salida" id="btnSalida">⛔ SALIDA</button>
+      
+      <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+        <button class="exportar" id="btnExportar">📤 Exportar CSV</button>
+        <button class="borrar" id="btnBorrar">🗑️ Borrar todo</button>
+      </div>
+
+      <div class="ok" id="mensaje" style="display: none;"></div>
+      
+      <div class="historial" id="historial">
+        <p style="color: #999; text-align: center;">📭 No hay registros</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  'use strict';
+  
+  const STORAGE_KEY = 'fichajes_pilar_v1';
+  let registros = [];
+  const $ = id => document.getElementById(id);
+  
+  // Detectar si estamos en modo app (standalone) o Safari normal
+  const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  
+  function mostrarMensaje(texto, tipo = 'ok') {
+    const msg = $('mensaje');
+    msg.textContent = texto;
+    msg.style.display = 'block';
+    msg.style.background = tipo === 'error' ? '#f8d7da' : '#d4edda';
+    msg.style.color = tipo === 'error' ? '#721c24' : '#155724';
+    
+    setTimeout(() => {
+      msg.style.display = 'none';
+    }, 3000);
+  }
+
+  function puedeGuardar() {
+    try {
+      const test = '__test_' + Date.now();
+      localStorage.setItem(test, '1');
+      localStorage.removeItem(test);
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  const guardadoDisponible = puedeGuardar();
+
+  if (!guardadoDisponible) {
+    $('banner').style.display = 'block';
+    $('banner').innerHTML = '⚠️ <b>Modo limitado:</b> Abre esta página en Safari normal (no desde WhatsApp/Instagram) y añádela a la pantalla de inicio para guardar datos.';
+  }
+
+  function cargarDatos() {
+    if (!guardadoDisponible) return;
+    try {
+      const datos = localStorage.getItem(STORAGE_KEY);
+      registros = datos ? JSON.parse(datos) : [];
+    } catch(e) {
+      registros = [];
+    }
+  }
+
+  function guardarDatos() {
+    if (!guardadoDisponible) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
+    } catch(e) {
+      mostrarMensaje('Error al guardar. Espacio lleno.', 'error');
+    }
+  }
+
+  function formatearFecha(fecha) {
+    return fecha.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  function formatearHora(fecha) {
+    return fecha.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function actualizarLista() {
+    const contenedor = $('historial');
+    
+    if (registros.length === 0) {
+      contenedor.innerHTML = '<p style="color: #999; text-align: center;">📭 No hay registros hoy</p>';
+      return;
+    }
+    
+    // Mostrar solo los últimos 20 registros
+    const recientes = registros.slice(0, 20);
+    
+    contenedor.innerHTML = recientes.map(r => {
+      const clase = r.tipo === 'SALIDA' ? 'registro salida' : 'registro';
+      return `
+        <div class="${clase}">
+          <b>${r.trabajador}</b> - ${r.tipo}<br>
+          <span class="hora">${r.fecha} • ${r.hora}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function fichar(tipo) {
+    const trabajador = $('trabajador').value;
+    
+    if (!trabajador) {
+      mostrarMensaje('⚠️ Selecciona un trabajador primero', 'error');
+      $('trabajador').focus();
+      return;
+    }
+
+    const ahora = new Date();
+    const registro = {
+      trabajador: trabajador,
+      tipo: tipo,
+      fecha: formatearFecha(ahora),
+      hora: formatearHora(ahora),
+      timestamp: ahora.getTime()
+    };
+
+    registros.unshift(registro);
+    guardarDatos();
+    actualizarLista();
+    
+    mostrarMensaje(`✅ ${trabajador}: ${tipo} a las ${registro.hora}`);
+    
+    // Vibrar si es posible (solo en app instalada)
+    if (navigator.vibrate) navigator.vibrate(50);
+  }
+
+  function exportarCSV() {
+    if (registros.length === 0) {
+      mostrarMensaje('No hay registros para exportar', 'error');
+      return;
+    }
+
+    // CSV simple
+    let csv = 'Trabajador,Tipo,Fecha,Hora\n';
+    registros.forEach(r => {
+      csv += `${r.trabajador},${r.tipo},${r.fecha},${r.hora}\n`;
+    });
+
+    // Crear archivo y descargar/compartir
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    // En iOS, intentar compartir primero
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], 'fichajes_elpilar.csv', { type: 'text/csv' });
+      navigator.share({
+        title: 'Fichajes El Pilar',
+        files: [file]
+      }).catch(() => {
+        // Si falla, descargar normal
+        descargarArchivo(url);
+      });
+    } else {
+      descargarArchivo(url);
+    }
+  }
+
+  function descargarArchivo(url) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'fichajes_elpilar.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function borrarTodo() {
+    if (registros.length === 0) {
+      mostrarMensaje('No hay nada que borrar', 'error');
+      return;
+    }
+    
+    if (confirm(`¿Borrar ${registros.length} registros? Esta acción no se puede deshacer.`)) {
+      registros = [];
+      guardarDatos();
+      actualizarLista();
+      mostrarMensaje('🗑️ Todos los registros borrados');
+    }
+  }
+
+  // Event listeners - mejorados para iOS touch
+  $('btnEntrada').addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    fichar('ENTRADA');
+  }, {passive: false});
+  
+  $('btnEntrada').addEventListener('click', function(e) {
+    e.preventDefault();
+    fichar('ENTRADA');
+  });
+
+  $('btnSalida').addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    fichar('SALIDA');
+  }, {passive: false});
+  
+  $('btnSalida').addEventListener('click', function(e) {
+    e.preventDefault();
+    fichar('SALIDA');
+  });
+
+  $('btnExportar').addEventListener('click', exportarCSV);
+  $('btnBorrar').addEventListener('click', borrarTodo);
+
+  // Inicializar
+  cargarDatos();
+  actualizarLista();
+  
+  // Debug: mostrar si funciona
+  console.log('Modo standalone:', isStandalone);
+  console.log('Guardado disponible:', guardadoDisponible);
+
+})();
+</script>
+
+</body>
+</html>
